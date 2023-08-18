@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebRTC Demo</title>
+    <script defer src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <h1>WebRTC</h1>
+    <p id="accountId"></p>
+    <p id="calling"></p>
+    <p id="ringing"></p>
+    <div id="localAudioStreamDivId"></div>
+    <div id="remoteAudioStreamDivId"></div>
+
+    <input type="text" id="remoteId" />
+    <button id="localAudioInitButtonId">START CALL</button>
+    <button id="localAudioAcceptButtonId">ACCEPT CALL</button>
+
+    <script src="constants.js" type="module"></script>
+    <script src="utils.js" type="module"></script>
+    <script src="index.js" type="module"></script>
+  </body>
+</html>
