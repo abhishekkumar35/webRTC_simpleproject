@@ -25,14 +25,10 @@ const acceptCallEl = document.getElementById("localAudioAcceptButtonId");
 let localPeerConnection;
 let remotePeerConnection;
 const configuration = {
-  iceServers:
-    [
-      {
-        urls: "iphone-stun.strato-iphone.de:3478",
-      },
-    ] || stun_servers,
+  iceServers: stun_servers,
+  iceCandidatePoolSize: 10,
 };
-const constraints = { video: false, audio: true };
+const constraints = { audio: true };
 
 socket.on("connect", () => {
   accountIdEl.textContent = socket.id;
@@ -45,7 +41,7 @@ startCallEl.addEventListener("click", async () => {
     console.log("localstream from caller", streams.getTracks());
     localPeerConnection = new RTCPeerConnection(configuration);
     callingEl.style.display = "block";
-
+    // localAudioEl.srcObject = streams;
     streams.getTracks().forEach((track) => {
       localPeerConnection.addTrack(track);
     });
@@ -54,13 +50,14 @@ startCallEl.addEventListener("click", async () => {
     socket.emit("offer", sdpOffer);
     socket.on("answer", async (answer) => {
       await localPeerConnection.setRemoteDescription(answer);
-      callingEl.style.display = "none";
     });
     localPeerConnection.ontrack = (e) => {
       console.log("callee", e);
       remoteAudioEl.srcObject = e.streams[0];
       remoteAudioEl.play();
+      callingEl.style.display = "none";
     };
+
     localPeerConnection.onicecandidate = ({ candidate }) => {
       socket.emit("candidate", candidate);
     };
@@ -77,8 +74,9 @@ socket.on("offer", (sdpOffer) => {
       let streams = await navigator.mediaDevices.getUserMedia(constraints);
       console.log("localstream from callee", streams.getTracks());
       await remotePeerConnection.setRemoteDescription(sdpOffer);
-      const answer = await remotePeerConnection.createAnswer();
+      let answer = await remotePeerConnection.createAnswer();
       await remotePeerConnection.setLocalDescription(answer);
+
       socket.emit("answer", answer);
       streams.getTracks().forEach((track) => {
         remotePeerConnection.addTrack(track);
