@@ -21,43 +21,38 @@ const io = socketServer(
 );
 io.on("connection", (socket) => {
   UserDB.clients.push(socket.id);
+
   socket.broadcast.emit("new_connection", "yes");
   socket.on("offer", (sdpOffer) => {
+    // console.log("sdpOffer", sdpOffer);
     socket.broadcast.emit("offer", sdpOffer);
   });
   socket.on("answer", (sdpAnswer) => {
+    // console.log("sdpanswer", sdpAnswer);
     socket.broadcast.emit("answer", sdpAnswer);
   });
-  socket.on("candidate", (candidate) => {
-    socket.broadcast.emit("candidate", candidate);
+  socket.on("rcandidate", (candidate) => {
+    if (candidate !== null) {
+      socket.broadcast.emit("rcandidate", candidate);
+      // console.log("rcandidate", candidate);
+    }
   });
+  socket.on("lcandidate", (candidate) => {
+    if (candidate !== null) {
+      socket.broadcast.emit("lcandidate", candidate);
+      // console.log("lcandidate", candidate);
+    }
+  });
+  // socket.on("candidate", (candidate) => {
+  //   if (candidate !== null) {
+  //     socket.broadcast.emit("candidate", candidate);
+  //     // console.log("candidate", candidate);
+  //   }
+  // });
   socket.on("disconnect", () => {
-    UserDB.clients = UserDB.clients.filter((user) => {
-      return user?.id !== socket.id;
-    });
+    // UserDB.clients = UserDB.clients.filter((user) => {
+    //   return user?.id !== socket.id;
+    // });
+    console.log("user-disconnected");
   });
 });
-
-// app.put("/update", (req, res) => {
-//   const { name, id } = req.body;
-//   if (!name && !id) {
-//     res.send({ updated: false, message: "name or id missing" });
-//     return;
-//   }
-//   const user = UserDB.clients.find((user) => {
-//     return user.id === id || user.name === name;
-//   });
-//   if (user) {
-//     user.name = name;
-//     user.id = id;
-//   }
-//   res.send({
-//     updated: true,
-//     message: "user updated successfully",
-//     data: user,
-//   });
-// });
-
-// app.get("/users", (req, res) => {
-//   res.send(UserDB.clients);
-// });
